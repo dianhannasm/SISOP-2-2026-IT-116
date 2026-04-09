@@ -88,3 +88,5 @@ printf("[INFO] Fuhh, selamat! Buku hutang dan daftar penagihan berhasil diamanka
 return 0;
 }
 ```
+---  
+### Soal 2 - The world never stops, even when you feel tired.  
