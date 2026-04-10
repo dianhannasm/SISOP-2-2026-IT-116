@@ -23,7 +23,9 @@ Program menggunakan konsep **parent-child process**:
 ```bash
   wget -O buku_hutang.csv "https://drive.google.com/uc?export=download&id=144hsFJGoAM5lbvBQjkTfZaD3GOil4yEw"
 ```
-**Apa ya**  `kasir_muthu.c`  
+**Program dibuat di `kasir_muthu.c`**  
+Setiap proses dijalankan oleh child process menggunakan `exec()`, dan parent akan menunggu menggunakan `waitpid()` agar berjalan secara berurutan.  
+  
 **Membuat folder** `brankas_kedai`
 ```c
 int main() {
@@ -39,7 +41,9 @@ if (pid == 0) {
     exit(EXIT_FAILURE);
   }
 }
-```
+```  
+Child process menjalankan perintah `mkdir` untuk membuat folder `brankas_kedai`, sedangkan parent menunggu proses selesai dan memastikan tidak terjadi error sebelum lanjut.  
+  
 **Menyalin file** `buku_hutang.csv`  
 ```c
 pid = fork();
@@ -55,6 +59,8 @@ if (pid == 0) {
     }
 }
 ```
+Child process menyalin file `buku_hutang.csv` ke dalam folder `brankas_kedai`, lalu parent memastikan proses berhasil sebelum melanjutkan ke tahap berikutnya.  
+  
 **Filtering data** `Belum Lunas` **dan simpan data ke** `daftar_penunggak.txt`  
 ```c
 pid = fork();
@@ -70,6 +76,8 @@ if (pid == 0) {
   }
 }
 ```
+Child process menjalankan `grep` melalui `bash -c` untuk mengambil data dengan status "Belum Lunas" dan menyimpannya ke file baru, sementara parent memastikan proses berhasil.  
+  
 **Kompress folder** `rahasia_muthu.zip`
 ```c
 pid = fork();
@@ -88,6 +96,8 @@ printf("[INFO] Fuhh, selamat! Buku hutang dan daftar penagihan berhasil diamanka
 return 0;
 }
 ```
+Child process mengompres folder `brankas_kedai` menjadi file `rahasia_muthu.zip`, dan setelah semua proses berhasil, program menampilkan pesan sukses.  
+  
 **Test flow**  
 *Output terminal*  
 
