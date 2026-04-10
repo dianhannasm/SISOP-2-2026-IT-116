@@ -1,17 +1,17 @@
 # SISOP-2-2026-IT-116
 Dian Hanna Simanjuntak (5027251116)
 ## Reporting
-
+  
 ### Soal 1 - Kasbon Warga Kampung Durian Runtuh
 Uncle Muthu mengalami masalah karena komputer kasirnya terkena virus. Di dalamnya terdapat file `buku_hutang.csv` yang berisi daftar utang pelanggan.
-
+  
 Program diminta untuk:
 1. Membuat folder `brankas_kedai`
 2. Menyalin file `buku_hutang.csv` ke dalam folder tersebut
 3. Mengambil data dengan status **"Belum Lunas"**
 4. Menyimpannya ke file `daftar_penunggak.txt`
 5. Mengompres folder menjadi `rahasia_muthu.zip`
-
+  
 Program menggunakan konsep **parent-child process**:
 
 - Parent (Upin) membuat child (Ipin)
@@ -23,6 +23,7 @@ Program menggunakan konsep **parent-child process**:
 ```bash
   wget -O buku_hutang.csv "https://drive.google.com/uc?export=download&id=144hsFJGoAM5lbvBQjkTfZaD3GOil4yEw"
 ```
+  
 **Program dibuat di `kasir_muthu.c`**  
 Setiap proses dijalankan oleh child process menggunakan `exec()`, dan parent akan menunggu menggunakan `waitpid()` agar berjalan secara berurutan.  
   
@@ -97,26 +98,28 @@ return 0;
 }
 ```
 Child process mengompres folder `brankas_kedai` menjadi file `rahasia_muthu.zip`, dan setelah semua proses berhasil, program menampilkan pesan sukses.  
-  
+
+    
 **Test flow**  
+  
 *Output terminal*  
-
+  
 <img width="1724" height="177" alt="image" src="https://github.com/user-attachments/assets/65adf37a-8290-49f8-9235-e9936982536b" />
-
+  
 *Hasil `grep` pada `daftar_penunggak.txt`*  
-
+  
 <img width="1723" height="315" alt="image" src="https://github.com/user-attachments/assets/8abdc9f8-110b-4dc2-bb0d-85b7fd849562" />
-
+  
 *Isi zip*  
-
+  
 <img width="1724" height="290" alt="image" src="https://github.com/user-attachments/assets/43bc14ff-ebff-4931-bd13-7131e5a1c557" />
-
+  
 *Test error*  
-
+  
 <img width="1720" height="59" alt="image" src="https://github.com/user-attachments/assets/1d3b28cb-a1b1-4ace-be62-2445e8a4edf9" />
 
 <img width="1722" height="117" alt="image" src="https://github.com/user-attachments/assets/cb99e0e7-7c06-4ed4-9ffd-4742228c256f" />
-  
+   
 ---  
 ### Soal 2 - The world never stops, even when you feel tired.  
 Program ini mengimplementasikan daemon process yang berjalan di background untuk memonitor file `contract.txt` dan mencatat aktivitas ke `work.log`c.  
@@ -146,9 +149,9 @@ void daemonize() {
   fclose(stdout);
   fclose(stderr);
 }
-```
+```  
 Fungsi ini digunakan untuk mengubah program menjadi daemon dengan memisahkan proses dari terminal menggunakan fork() dan setsid().  
-  
+    
 **Timestamp**  
 ```c
 void get_time(char *buf) {
@@ -156,7 +159,7 @@ void get_time(char *buf) {
   struct tm *t = localtime(&now);
   strftime(buf, 100, "%Y-%m-%d %H:%M:%S", t);
 }
-```
+```  
 Digunakan untuk mendapatkan waktu saat ini dan memformatnya menjadi string timestamp.  
   
 **Restored `contract.txt`**  
@@ -175,7 +178,7 @@ void create_contract(int restored) {
 
     fclose(f);
 }
-```
+```  
 Fungsi ini membuat file contract.txt saat awal program berjalan juga saat file perlu direstore.  
   
 **Validasi `contract.txt`**  
@@ -192,7 +195,7 @@ int is_valid() {
     else
         return 0;
 }
-```
+```  
 Digunakan untuk mengecek apakah isi file masih sesuai dengan format yang benar atau telah dimodifikasi.  
   
 **Menulis status acak pada `work.log`**  
@@ -206,9 +209,9 @@ void write_log() {
     fprintf(log, "still working... %s\n", status[r]);
     fclose(log);
 }
-```
+```  
 Fungsi ini menuliskan log setiap 5 detik dengan status acak ke dalam `work.log`.  
-  
+    
 **Main**  
 ```c
 int main() {
@@ -237,77 +240,80 @@ int main() {
     }
     return 0;
 }
-```
+```  
 Menjalankan loop daemon untuk memonitor file, mendeteksi perubahan atau penghapusan, serta menuliskan log secara berkala.  
   
-**Test Flow**  
-*Clean*
+**Test Flow**   
+*Clean*  
 ```bash
 pkill contract_daemon
 rm work.log contract.txt
 ```
-*Jalankan daemon*
+  
+*Jalankan daemon*  
 ```bash
 ./contract_daemon
 ```
-*Cek file*
+  
+*Cek file*  
 ```bash
 ls
-```
-
+```  
+  
 <img width="1715" height="88" alt="image" src="https://github.com/user-attachments/assets/70f6a28b-3fa3-4438-b94e-7cd8e3fc61e7" />
-
-*Isi `contract.txt`*  
+  
+*Isi `contract.txt`*    
 ```bash
 cat contract.txt
-```
-
-<img width="1713" height="124" alt="image" src="https://github.com/user-attachments/assets/e4df1c1a-355e-4806-b502-9c56d85a630d" />
-
-*Log berjalan*  
+```  
+  
+<img width="1713" height="124" alt="image" src="https://github.com/user-attachments/assets/e4df1c1a-355e-4806-b502-9c56d85a630d" />  
+  
+*Log berjalan*    
 ```bash
 cat work.log
-```
-
+```  
+  
 <img width="1710" height="510" alt="image" src="https://github.com/user-attachments/assets/e3b3c7e8-7920-4648-be8f-8da6788d9f18" />
-
-*Delete file `contract.txt`*
+  
+*Delete file `contract.txt`*  
 ```bash
 rm contract.txt
-```
-
-<img width="1712" height="191" alt="image" src="https://github.com/user-attachments/assets/5c204867-61a2-4ab3-b628-4883850d18d3" />
-
-File muncul kembali setelah 1-2 detik.  
-
+```  
+  
+<img width="1712" height="191" alt="image" src="https://github.com/user-attachments/assets/5c204867-61a2-4ab3-b628-4883850d18d3" />  
+  
+File muncul kembali setelah 1-2 detik.   
 <img width="1713" height="104" alt="image" src="https://github.com/user-attachments/assets/e1aa70c6-a76f-4528-afe9-c0bf0bd75648" />
-
+  
 ```bash
 cat contract.txt
 ```
-
-<img width="1710" height="129" alt="image" src="https://github.com/user-attachments/assets/1a7c8e18-39fe-4209-b961-5f28d37af0e6" />
   
-*Test edit file*
+<img width="1710" height="129" alt="image" src="https://github.com/user-attachments/assets/1a7c8e18-39fe-4209-b961-5f28d37af0e6" />  
+    
+*Test edit file*  
 ```bash
 nano contract.txt
 ```
-
+  
 <img width="1698" height="95" alt="image" src="https://github.com/user-attachments/assets/d8317e6a-802c-492e-99c3-b12036878d50" />
   
 Pada `work.log` akan muncul `contract violated`  
+  
 <img width="1723" height="55" alt="image" src="https://github.com/user-attachments/assets/aee31bdf-e6b1-4d10-a5f9-81dee2f3830a" />
-
+  
 Dan isi file `contract.txt` kembali semula  
-
+  
 <img width="1725" height="127" alt="image" src="https://github.com/user-attachments/assets/47458ce9-7f9c-4f3b-9afe-0c6f04d28c75" />
-
+  
 *Stop daemon*  
+  
 Cek PID  
-<img width="1708" height="110" alt="image" src="https://github.com/user-attachments/assets/99794d40-1d5d-4bb1-95b5-27a35ac9bced" />
-
-Kill daemon dan cek status pada `work.log`  
-
+<img width="1708" height="110" alt="image" src="https://github.com/user-attachments/assets/99794d40-1d5d-4bb1-95b5-27a35ac9bced" />  
+  
+Kill daemon dan cek status pada `work.log`   
+  
 <img width="1724" height="148" alt="image" src="https://github.com/user-attachments/assets/d3641d41-fe21-4db2-941a-6bdc191d3f7a" />
 
 <img width="1722" height="98" alt="image" src="https://github.com/user-attachments/assets/3ead6148-bb3a-4f14-bafd-bffa10268c2b" />
