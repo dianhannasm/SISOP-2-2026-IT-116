@@ -90,3 +90,4 @@ return 0;
 ```
 ---  
 ### Soal 2 - The world never stops, even when you feel tired.  
+Program ini mengimplementasikan daemon process yang berjalan di background untuk memonitor file `contract.txt` dan mencatat aktivitas ke `work.log`c.
