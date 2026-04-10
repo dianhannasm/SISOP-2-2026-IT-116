@@ -88,6 +88,25 @@ printf("[INFO] Fuhh, selamat! Buku hutang dan daftar penagihan berhasil diamanka
 return 0;
 }
 ```
+**Test flow**  
+*Output terminal*  
+
+<img width="1724" height="177" alt="image" src="https://github.com/user-attachments/assets/65adf37a-8290-49f8-9235-e9936982536b" />
+
+*Hasil `grep` pada `daftar_penunggak.txt`*  
+
+<img width="1723" height="315" alt="image" src="https://github.com/user-attachments/assets/8abdc9f8-110b-4dc2-bb0d-85b7fd849562" />
+
+*Isi zip*  
+
+<img width="1724" height="290" alt="image" src="https://github.com/user-attachments/assets/43bc14ff-ebff-4931-bd13-7131e5a1c557" />
+
+*Test error*  
+
+<img width="1720" height="59" alt="image" src="https://github.com/user-attachments/assets/1d3b28cb-a1b1-4ace-be62-2445e8a4edf9" />
+
+<img width="1722" height="117" alt="image" src="https://github.com/user-attachments/assets/cb99e0e7-7c06-4ed4-9ffd-4742228c256f" />
+  
 ---  
 ### Soal 2 - The world never stops, even when you feel tired.  
 Program ini mengimplementasikan daemon process yang berjalan di background untuk memonitor file `contract.txt` dan mencatat aktivitas ke `work.log`c.  
