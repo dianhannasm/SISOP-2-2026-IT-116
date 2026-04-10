@@ -259,3 +259,26 @@ cat contract.txt
 
 <img width="1710" height="129" alt="image" src="https://github.com/user-attachments/assets/1a7c8e18-39fe-4209-b961-5f28d37af0e6" />
   
+*Test edit file*
+```bash
+nano contract.txt
+```
+
+<img width="1698" height="95" alt="image" src="https://github.com/user-attachments/assets/d8317e6a-802c-492e-99c3-b12036878d50" />
+  
+Pada `work.log` akan muncul `contract violated`  
+<img width="1723" height="55" alt="image" src="https://github.com/user-attachments/assets/aee31bdf-e6b1-4d10-a5f9-81dee2f3830a" />
+
+Dan isi file `contract.txt` kembali semula  
+
+<img width="1725" height="127" alt="image" src="https://github.com/user-attachments/assets/47458ce9-7f9c-4f3b-9afe-0c6f04d28c75" />
+
+*Stop daemon*  
+Cek PID  
+<img width="1708" height="110" alt="image" src="https://github.com/user-attachments/assets/99794d40-1d5d-4bb1-95b5-27a35ac9bced" />
+
+Kill daemon dan cek status pada `work.log`  
+
+<img width="1724" height="148" alt="image" src="https://github.com/user-attachments/assets/d3641d41-fe21-4db2-941a-6bdc191d3f7a" />
+
+<img width="1722" height="98" alt="image" src="https://github.com/user-attachments/assets/3ead6148-bb3a-4f14-bafd-bffa10268c2b" />
