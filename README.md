@@ -321,7 +321,7 @@ Kill daemon dan cek status pada `work.log`
   
   
 ---  
-##Revisi  
+## Revisi  
 Soal yang tidak sempat terselesaikan.  
 ### Soal 3 - One letter for destiny  
 Program ini mengimplementasikan daemon process yang secara otomatis menulis pesan cinta acak ke dalam file `LoveLetter.txt`, kemudian mengenkripsinya menggunakan base64, serta mencatat aktivitas ke dalam `ethereal.log`.  
