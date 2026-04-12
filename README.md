@@ -317,3 +317,320 @@ Kill daemon dan cek status pada `work.log`
 <img width="1724" height="148" alt="image" src="https://github.com/user-attachments/assets/d3641d41-fe21-4db2-941a-6bdc191d3f7a" />
 
 <img width="1722" height="98" alt="image" src="https://github.com/user-attachments/assets/3ead6148-bb3a-4f14-bafd-bffa10268c2b" />
+  
+  
+  
+---  
+##Revisi  
+Soal yang tidak sempat terselesaikan.  
+### Soal 3 - One letter for destiny  
+Program ini mengimplementasikan daemon process yang secara otomatis menulis pesan cinta acak ke dalam file `LoveLetter.txt`, kemudian mengenkripsinya menggunakan base64, serta mencatat aktivitas ke dalam `ethereal.log`.  
+
+Program memiliki 3 fitur utama:  
+```bash
+./angel
+Penggunaan:
+./angel -daemon
+: jalankan sebagai daemon
+./angel -decrypt
+: decrypt LoveLetter.txt
+./angel -kill
+: kill proses
+```
+
+**`angel.c`**
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/prctl.h>
+
+char *quotes[] = {
+    "aku akan fokus pada diriku sendiri",
+    "aku mencintaimu dari sekarang hingga selamanya",
+    "aku akan menjauh darimu, hingga takdir mempertemukan kita di versi kita yang terbaik.",
+    "kalau aku dilahirkan kembali, aku tetap akan terus menyayangimu"
+};
+
+void write_log(char *process, char *status) {
+    FILE *log = fopen("ethereal.log", "a");
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    fprintf(log, "[%02d:%02d:%04d]-[%02d:%02d:%02d]_%s_%s\n",
+        tm.tm_mday, tm.tm_mon+1, tm.tm_year+1900,
+        tm.tm_hour, tm.tm_min, tm.tm_sec,
+        process, status);
+
+    fclose(log);
+}
+
+void encode_base64() {
+    write_log("surprise", "RUNNING");
+    system("base64 LoveLetter.txt > temp.txt && mv temp.txt LoveLetter.txt");
+    write_log("surprise", "SUCCESS");
+}
+
+void write_random_quote() {
+    write_log("secret", "RUNNING");
+
+    FILE *fp = fopen("LoveLetter.txt", "w");
+    if (!fp) {
+        write_log("secret", "ERROR");
+        return;
+    }
+
+    int idx = rand() % 4;
+    fprintf(fp, "%s\n", quotes[idx]);
+    fclose(fp);
+
+    write_log("secret", "SUCCESS");
+}
+
+void decrypt_file() {
+    write_log("decrypt", "RUNNING");
+
+    if (access("LoveLetter.txt", F_OK) == -1) {
+        printf("File tidak ditemukan!\n");
+        write_log("decrypt", "ERROR");
+        return;
+    }
+
+    system("base64 -d LoveLetter.txt > temp.txt && mv temp.txt LoveLetter.txt");
+
+    write_log("decrypt", "SUCCESS");
+}
+
+void run_daemon(char *argv[]) {
+    pid_t pid = fork();
+
+    if (pid < 0) exit(EXIT_FAILURE);
+    if (pid > 0) exit(EXIT_SUCCESS);
+
+    umask(0);
+    setsid();
+    prctl(PR_SET_NAME, "maya", 0, 0, 0);
+    strcpy(argv[0], "maya");
+
+    while (1) {
+        write_random_quote();
+        encode_base64();
+        sleep(10);
+    }
+}
+
+void kill_daemon() {
+    write_log("kill", "RUNNING");
+
+    int result = system("pkill -x maya");
+
+    if (result == 0) {
+        printf("Daemon berhasil dihentikan.\n");
+        write_log("kill", "SUCCESS");
+    } else {
+        printf("Daemon tidak ditemukan!\n");
+        write_log("kill", "ERROR");
+    }
+}
+
+int main(int argc, char *argv[]) {
+    srand(time(NULL));
+    if (argc < 2) {
+        printf("Penggunaan:\n");
+        printf("./angel -daemon\n");
+        printf("./angel -decrypt\n");
+        printf("./angel -kill\n");
+        return 1;
+    }
+
+    if (strcmp(argv[1], "-daemon") == 0) {
+        run_daemon(argv);
+    }
+    else if (strcmp(argv[1], "-decrypt") == 0) {
+        decrypt_file();
+    }
+    else if (strcmp(argv[1], "-kill") == 0) {
+        kill_daemon();
+    }
+    else {
+        printf("Argumen tidak valid!\n");
+    }
+    return 0;
+}
+```
+
+**Penjelasan per fungsi**  
+*Membuat daemon*  
+```c
+void write_log(char *process, char *status) {
+    FILE *log = fopen("ethereal.log", "a");
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    fprintf(log, "[%02d:%02d:%04d]-[%02d:%02d:%02d]_%s_%s\n",
+        tm.tm_mday, tm.tm_mon+1, tm.tm_year+1900,
+        tm.tm_hour, tm.tm_min, tm.tm_sec,
+        process, status);
+
+    fclose(log);
+}
+```
+Semua aktivitas dicatat ke `ethereal.log` dengan format:  
+```
+[dd:mm:yyyy]-[hh:mm:ss]_process_status
+```
+Contoh:
+```
+[08:04:2026]-[02:44:06]_secret_RUNNING
+[08:04:2026]-[02:44:06]_secret_SUCCESS
+```
+
+*Enkripsi Base64*
+```c
+void encode_base64() {
+    write_log("surprise", "RUNNING");
+    system("base64 LoveLetter.txt > temp.txt && mv temp.txt LoveLetter.txt");
+    write_log("surprise", "SUCCESS");
+}
+```  
+Fungsi ini mengenkripsi isi file menggunakan base64 dan menggunakan file sementara (`temp.txt`).  
+
+*Menulis Pesan Acak*  
+```c
+void write_random_quote() {
+    write_log("secret", "RUNNING");
+
+    FILE *fp = fopen("LoveLetter.txt", "w");
+    if (!fp) {
+        write_log("secret", "ERROR");
+        return;
+    }
+
+    int idx = rand() % 4;
+    fprintf(fp, "%s\n", quotes[idx]);
+    fclose(fp);
+
+    write_log("secret", "SUCCESS");
+}
+```  
+Fungsi ini memilih quote secara acak, menulis ke `LoveLetter.txt`, file selalu di-overwrite ("`w`").  
+
+*Dekripsi File*  
+```c
+void decrypt_file() {
+    write_log("decrypt", "RUNNING");
+
+    if (access("LoveLetter.txt", F_OK) == -1) {
+        printf("File tidak ditemukan!\n");
+        write_log("decrypt", "ERROR");
+        return;
+    }
+
+    system("base64 -d LoveLetter.txt > temp.txt && mv temp.txt LoveLetter.txt");
+
+    write_log("decrypt", "SUCCESS");
+}
+```
+Fungsi ini digunakan untuk mengembalikan isi file ke bentuk asli, menggunakan command `base64 -d`.  
+
+*Membuat Daemon*  
+```c
+void run_daemon(char *argv[]) {
+    pid_t pid = fork();
+
+    if (pid < 0) exit(EXIT_FAILURE);
+    if (pid > 0) exit(EXIT_SUCCESS);
+
+    umask(0);
+    setsid();
+    prctl(PR_SET_NAME, "maya", 0, 0, 0);
+    strcpy(argv[0], "maya");
+
+    while (1) {
+        write_random_quote();
+        encode_base64();
+        sleep(10);
+    }
+}
+```
+Fungsi ini mengubah program menjadi daemon:  
+- `fork()` → memisahkan parent & child  
+- `setsid()` → membuat session baru  
+- `prctl` & `argv[0]` → mengubah nama proses menjadi maya  
+- `chdir("/")` & `close fd` → detach dari terminal  
+  
+Daemon akan berjalan setiap 10 detik:  
+- Menulis pesan random  
+- Mengenkripsi dengan base64
+
+*Menghentikan Daemon*
+```c
+void kill_daemon() {
+    write_log("kill", "RUNNING");
+
+    int result = system("pkill -x maya");
+
+    if (result == 0) {
+        printf("Daemon berhasil dihentikan.\n");
+        write_log("kill", "SUCCESS");
+    } else {
+        printf("Daemon tidak ditemukan!\n");
+        write_log("kill", "ERROR");
+    }
+}
+```
+`pkill -x maya` untuk menghentikan proses.  
+
+*Main*  
+```c
+int main(int argc, char *argv[]) {
+    srand(time(NULL));
+    if (argc < 2) {
+        printf("Penggunaan:\n");
+        printf("./angel -daemon\n");
+        printf("./angel -decrypt\n");
+        printf("./angel -kill\n");
+        return 1;
+    }
+
+    if (strcmp(argv[1], "-daemon") == 0) {
+        run_daemon(argv);
+    }
+    else if (strcmp(argv[1], "-decrypt") == 0) {
+        decrypt_file();
+    }
+    else if (strcmp(argv[1], "-kill") == 0) {
+        kill_daemon();
+    }
+    else {
+        printf("Argumen tidak valid!\n");
+    }
+    return 0;
+}
+```
+
+**Output**  
+`./angel -daemon`  
+<img width="1722" height="217" alt="image" src="https://github.com/user-attachments/assets/1a1c111c-6f05-4859-8e4b-e7bc9b2edc2f" />
+
+*Cek file*  
+<img width="1714" height="212" alt="image" src="https://github.com/user-attachments/assets/576a96b4-78c1-46b3-b7b4-9a480f15aea7" />
+
+`./angel -decrypt`    
+<img width="1712" height="99" alt="image" src="https://github.com/user-attachments/assets/2c13366a-934a-4944-bb33-9a8c36e9c1ee" />
+
+*Cek log*  
+<img width="1714" height="430" alt="image" src="https://github.com/user-attachments/assets/195f6f4b-e17b-4dc5-8a7d-740cb7b94351" />
+
+`.angel -kill`  
+<img width="1716" height="97" alt="image" src="https://github.com/user-attachments/assets/a7e48fa6-14e2-40c6-97f0-814f9cbfeef4" />
+
+
